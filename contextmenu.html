@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>contextmenu Event Example</title>
+</head>
+<body>
+	<div id="myDiv">Right click or ctrl+click me to get a custom context menu.
+		Click anywhere else to get the default context menu.</div>
+	<ul id="myMenu" style="position:absolute;visibility:hidden;background-color:silver">
+		<li><a href="https://www.baidu.com/">百度</a></li>
+		<li><a href="http://blog.csdn.net/qq_22509715">我的博客</a></li>
+		<li><a href="https://github.com/">github</a></li>
+	</ul>
+	
+	<script>
+		var EventUtil = {
+			addHandler : function(element , type , handler){
+				if(element.addEventListener){
+					element.addEventListener(type , handler , false);
+				}else if(element.attachEvent){
+					element.attachEvent('on' + type , handler);
+				}else{
+					element['on' + type] = handler;
+				}
+			},
+			removeHandler : function(element , type , handler){
+				if(element.removeEventListener){
+					element.removeEventListener(type , handler ,false);
+				}else if(element.detatchEvent){
+					element.detatchEvent('on' + type , handler);
+				}else{
+					element['on' +type] = null;
+				}
+			},
+			getEvent:function(event){
+				return event ? event : window.event;
+			},
+			getTarget:function(event){
+				return event.target || event.srcElement;
+			},
+			preventDefault:function(event){
+				if(event.preventDefault){
+					event.preventDefault();
+				}else{
+					event.returnValue = false;
+				}
+			},
+			stopPropagation:function(event){
+				if(event.stopPropagation){
+					event.stopPropagation();
+				}else{
+					event.cancelBubble = true;
+				}
+			},
+			getRelatedTarget:function(event){
+				if(event.relatedTarget){
+					return event.relatedTarget;
+				}else if(event.toElement){
+					return event.toElement;
+				}else if(event.fromElement){
+					return event.fromElement;
+				}else{
+					return null;
+				}
+			},
+			gutButton:function(event){
+				if(document.implementation.hasFeature("MouseEvents" , "2.0")){
+					return event.button;
+				}else{
+					switch(event.button){
+						case 0:
+						case 1:
+						case 2:
+						case 3:
+						case 5:
+						case 7:
+							return 0;
+						case 2:
+						case 6:
+							return 2;
+						case 7:
+							return 1;
+					}
+				}
+			},
+			getWheelDelta:function(event){
+				if(event.wheelDelta){
+					return (client.engine.opera && client.engine.opera < 9.5 ? -event.wheelDelta : event.wheelDelta);
+				}else{
+					return -event.detail * 40;
+				}
+			},
+			getCharCode:function(event){
+				if(typeof event.charCode == "number"){
+					return event.charCode;
+				}else{
+					return event.keyCode;
+				}
+			}
+		};
+
+		EventUtil.addHandler(window , "load" , function(event){
+			var div = document.getElementById("myDiv");
+			EventUtil.addHandler(div , "contextmenu" , function(event){
+				
+				event = EventUtil.getEvent(event);
+				EventUtil.preventDefault(event);
+
+				var menu = document.getElementById("myMenu");
+				menu.style.left = event.clientX + "px";
+				menu.style.top = event.clientY + "px";
+				menu.style.visibility = "visible";
+			});
+			EventUtil.addHandler(document , "click" , function(event){
+				document.getElementById("myMenu").style.visibility = "hidden";
+			});
+		})
+	</script>
+</body>
+</html>
